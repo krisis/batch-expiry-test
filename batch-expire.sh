@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 
-./mc mb myminio/bucket
-./mc version enable myminio/bucket
+mc mb myminio/bucket
+mc version enable myminio/bucket
 
-./mc anonymous set public myminio/bucket
+mc anonymous set public myminio/bucket
 
 for i in {1..50}
 do
