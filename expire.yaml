@@ -1,10 +1,21 @@
 expire:
   apiVersion: v1
   bucket: bucket # Bucket where this job will expire matching objects from
-  prefix: prefix # (Optional) Prefix under which this job will expire objects matching the rules below.
   rules:
+    - type: object
+      name: prefix-2/obj-*
+      createdBefore: 2023-07-06T15:04:05Z # match objects created before "date"
+      tags:
+        - key: name
+          value: pick* # match objects with tag 'name', all values starting with 'pick'
+      metadata:
+        - key: Content-Type
+          value: application/* # match objects with 'content-type', all values starting with 'image/'
+      size:
+        lessThan: 10MiB # match objects with size lesser than this value (e.g. 10MiB)
+
     - type: object  # objects with zero ore more older versions
-      name: prefix/obj-* # match object names that satisfy the wildcard expression.
+      name: prefix-1/obj-* # match object names that satisfy the wildcard expression.
       createdBefore: 2023-07-05T15:04:05Z # match objects created before "date"
       tags:
         - key: name
@@ -13,14 +24,14 @@ expire:
         - key: Content-Type
           value: application/* # match objects with 'content-type', all values starting with 'image/'
       size:
-        lesserThan: 10MiB # match objects with size lesser than this value (e.g. 10MiB)
+        lessThan: 10MiB # match objects with size lesser than this value (e.g. 10MiB)
       purge:
         retainVersions: 2
           # retainVersions: 0 # (default) delete all versions of the object. This option is the fastest.
           # retainVersions: 5 # keep the latest 5 versions of the object.
 
     - type: deleted # objects with delete marker as their latest version
-      name: prefix/obj-* # match object names that satisfy the wildcard expression.
+      name: prefix-1/obj-* # match object names that satisfy the wildcard expression.
       olderThan: 10h # match objects older than this value (e.g. 7d10h31s)
       purge:
         retainVersions: 2
@@ -28,6 +39,6 @@ expire:
           # retainVersions: 5 # keep the latest 5 versions of the object including delete markers.
 
   retry:
-    attempts: 10 # number of retries for the job before giving up
+    attempts: 3 # number of retries for the job before giving up
     delay: 500ms # least amount of delay between each retry
 
